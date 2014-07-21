@@ -41,7 +41,7 @@ public class MainNetParams extends NetworkParameters {
         genesisBlock.setTime(1388281107L);
         genesisBlock.setNonce(1110492);
         id = ID_MAINNET;
-        subsidyDecreaseBlockCount = 210000; // TODO
+        subsidyDecreaseBlockCount = 840000;
         spendableCoinbaseDepth = 100;
         String genesisHash = genesisBlock.getHashAsString();
         checkState(genesisHash.equals("b394336b1e5a1134e264265df4955896fcc1b22276e7fa084017ad526f38bf43"),
