@@ -38,6 +38,7 @@ import java.util.List;
 import static com.google.sha1coin.core.Coin.FIFTY_COINS;
 import static com.google.sha1coin.core.Utils.doubleDigest;
 import static com.google.sha1coin.core.Utils.doubleDigestTwoBuffers;
+import static com.google.sha1coin.core.Utils.sha1Digest;
 
 /**
  * <p>A block is a group of transactions, and is one of the fundamental data structures of the Bitcoin system.
@@ -87,6 +88,7 @@ public class Block extends Message {
 
     /** Stores the hash of the block. If null, getHash() will recalculate it. */
     private transient Sha256Hash hash;
+    private transient Sha256Hash sha1Hash;
 
     private transient boolean headerParsed;
     private transient boolean transactionsParsed;
@@ -516,6 +518,16 @@ public class Block extends Message {
         }
     }
 
+    private Sha256Hash calculateSHA1Hash() {
+        try {
+            ByteArrayOutputStream bos = new UnsafeByteArrayOutputStream(HEADER_SIZE);
+            writeHeader(bos);
+            return new Sha256Hash(Utils.reverseBytes(sha1Digest(bos.toByteArray())));
+        } catch (IOException e) {
+            throw new RuntimeException(e); // Cannot happen.
+        }
+    }
+
     /**
      * Returns the hash of the block (which for a valid, solved block should be below the target) in the form seen on
      * the block explorer. If you call this on block 1 in the production chain
@@ -523,6 +535,10 @@ public class Block extends Message {
      */
     public String getHashAsString() {
         return getHash().toString();
+    }
+
+    public String getSHA1HashAsString() {
+        return getSHA1Hash().toString();
     }
 
     /**
@@ -534,6 +550,12 @@ public class Block extends Message {
         if (hash == null)
             hash = calculateHash();
         return hash;
+    }
+
+    public Sha256Hash getSHA1Hash() {
+        if (sha1Hash == null)
+            sha1Hash = calculateSHA1Hash();
+        return sha1Hash;
     }
 
     /**
@@ -652,7 +674,7 @@ public class Block extends Message {
         // field is of the right value. This requires us to have the preceeding blocks.
         BigInteger target = getDifficultyTargetAsInteger();
 
-        BigInteger h = getHash().toBigInteger();
+        BigInteger h = getSHA1Hash().toBigInteger();
         if (h.compareTo(target) > 0) {
             // Proof of work check failed!
             if (throwException)

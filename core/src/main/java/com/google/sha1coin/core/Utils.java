@@ -36,6 +36,7 @@ import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
+import javax.xml.bind.DatatypeConverter;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.util.concurrent.Uninterruptibles.sleepUninterruptibly;
@@ -46,9 +47,11 @@ import static com.google.common.util.concurrent.Uninterruptibles.sleepUninterrup
  */
 public class Utils {
     private static final MessageDigest digest;
+    private static final MessageDigest sha1digest;
     static {
         try {
             digest = MessageDigest.getInstance("SHA-256");
+            sha1digest = MessageDigest.getInstance("SHA-1");
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);  // Can't happen.
         }
@@ -143,6 +146,10 @@ public class Utils {
         return doubleDigest(input, 0, input.length);
     }
 
+    public static byte[] sha1Digest(byte[] input) {
+        return sha1Digest(input, 0, input.length);
+    }
+
     /**
      * Calculates the SHA-256 hash of the given byte range, and then hashes the resulting hash again. This is
      * standard procedure in Bitcoin. The resulting hash is in big endian form.
@@ -161,6 +168,26 @@ public class Utils {
             digest.reset();
             digest.update(input, offset, length);
             return digest.digest();
+        }
+    }
+
+    public static byte[] sha1Digest(byte[] input, int offset, int length) {
+        synchronized (sha1digest) {
+            sha1digest.reset();
+            sha1digest.update(input, offset, length);
+            final String str = DatatypeConverter.printBase64Binary(sha1digest.digest());
+            final String str2 = str.substring(0, 26) + str.substring(0, 11);
+            final byte[] bin2 = str2.getBytes();
+            byte[] result = new byte [32];
+            for (int i = 0; i < 26; i++) {
+                sha1digest.reset();
+                sha1digest.update(bin2, i, 12);
+                final byte[] d = sha1digest.digest();
+                for (int j = 0; j < 20; j++) {
+                  result[j] ^= d[j];
+                }
+            }
+            return result;
         }
     }
 
