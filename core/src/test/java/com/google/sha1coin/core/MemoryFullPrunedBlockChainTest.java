@@ -3,6 +3,7 @@ package com.google.sha1coin.core;
 import com.google.sha1coin.store.BlockStoreException;
 import com.google.sha1coin.store.FullPrunedBlockStore;
 import com.google.sha1coin.store.MemoryFullPrunedBlockStore;
+import org.junit.Ignore;
 
 /**
  * A MemoryStore implementation of the FullPrunedBlockStoreTest

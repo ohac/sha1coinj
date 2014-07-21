@@ -4,6 +4,7 @@ import com.google.sha1coin.store.BlockStoreException;
 import com.google.sha1coin.store.FullPrunedBlockStore;
 import com.google.sha1coin.store.H2FullPrunedBlockStore;
 import org.junit.After;
+import org.junit.Ignore;
 
 import java.io.File;
 
