@@ -17,6 +17,7 @@
 
 package com.google.sha1coin.core;
 
+import com.google.sha1coin.utils.Base64;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
@@ -36,7 +37,6 @@ import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
-import javax.xml.bind.DatatypeConverter;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.util.concurrent.Uninterruptibles.sleepUninterruptibly;
@@ -175,7 +175,7 @@ public class Utils {
         synchronized (sha1digest) {
             sha1digest.reset();
             sha1digest.update(input, offset, length);
-            final String str = DatatypeConverter.printBase64Binary(sha1digest.digest());
+            final String str = Base64.encodeBytes(sha1digest.digest());
             final String str2 = str.substring(0, 26) + str.substring(0, 11);
             final byte[] bin2 = str2.getBytes();
             byte[] result = new byte [32];
